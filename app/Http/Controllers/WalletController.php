@@ -24,4 +24,14 @@ class WalletController extends Controller
 
         return redirect()->back()->with('status', 'Berhasil merequest top up. Silakan setor uangnya ke Teller Bank Mini');
     }
+
+    public function acceptRequest(Request $request){
+        $wallet_id = $request->wallet_id;
+
+        Wallet::find($wallet_id)->update([
+            'status' => 'selesai'
+        ]);
+
+        return redirect()->back()->with('status', 'successfully approved the top up request');
+    }
 }

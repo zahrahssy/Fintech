@@ -1,20 +1,97 @@
+@php
+function rupiah($angka){
+$hasil_rupiah = "Rp" .number_format($angka,0,',','.');
+return $hasil_rupiah;
+}
+@endphp
+
 @extends('layouts.app')
 
 @section('content')
 <div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            @if (session('status'))
+@if (session('status'))
             <div class="alert alert-success" role="alert">
                 {{ session('status') }}
             </div>
             @endif
+    <div class="row justify-content-center">
+        @if(Auth::user()->role == 'bank')
+        <div class="col-md-4">
+            <div class="row justify-content-start mb-4">
+                <div class="col">
+                    <div class="card">
+                        <div class="card-header fw-bold" style="font-size: 25px;">Saldo</div>
+                        <div class="card-body" style="font-size: 15px;">
+                            {{ rupiah($saldo) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-start mb-4">
+                <div class="col">
+                    <div class="card">
+                        <div class="card-header fw-bold" style="font-size: 25px;">Nasabah</div>
+                        <div class="card-body" style="font-size: 15px;">
+                            {{ $nasabah }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-start mb-4">
+                <div class="col">
+                    <div class="card">
+                        <div class="card-header fw-bold" style="font-size: 25px;">Transaksi</div>
+                        <div class="card-body" style="font-size: 15px;">
+                            {{ $transactions }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col md-8">
+            <div class="card">
+                <div class="card-header fw-bold" style="font-size: 25px;">Top Up Request</div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+
+                            @foreach ($request_topup as $request )
+                             <form action="{{ route('acceptRequest') }}" method="post">
+                            @csrf
+                            <input type="hidden" name="wallet_id" value="{{ $request->id }}">
+                            <div class="card bg-white shadow-sm border-0 mb-3">
+                                <div class="card-header border-0">
+                                    {{ $request->user->name }}
+                                </div>
+                                <div class="card-body d-flex justify-content-between">
+                                    <div class="col my-auto">
+                                        Nominal : {{ rupiah($request->credit) }}
+                                    </div>
+                                    <div class="col text-end">
+                                        <button type="submit" class="btn btn-primary">Accept Request</button>
+                                    </div>
+                                </div>
+
+                            </div>
+                            </form> 
+
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
+
+        @if(Auth::user()->role == 'siswa')
+        <div class="col-md-8">
+            
             <div class="card mb-3">
                 <div class="card-header">Welcome, {{ Auth::user()->name }}</div>
                 <div class="card-body">
                     <div class="row align-items-center">
                         <div class="col d-flex justify-content-start">
-                            Saldo: {{ $saldo }}
+                            Saldo: {{ rupiah($saldo) }}
                         </div>
                         <div class="col d-flex justify-content-end">
                             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#formTopUp">Top Up</button>
@@ -70,7 +147,7 @@
 
                                         <div>{{ $product->description }}</div>
 
-                                        <div>Harga: Rp{{ $product->price }}</div>
+                                        <div>Harga: {{ rupiah($product->price) }}</div>
                                     </div>
                                     <div class="card-footer">
                                         <div class="mb-3">
@@ -129,27 +206,28 @@
                 </div>
                 <div class="card-body">
                     @foreach ($transactions as $key => $transaction)
-                        <div class="row mb-3">
-                            <div class="col">
-                                <div class="row">
-                                    <div class="col fw-bold">
-                                        {{ $transaction[0]->order_id }}
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col text-secondary" style="font-size: 12px">
-                                        {{ $transaction[0]->created_at }}
-                                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <div class="row">
+                                <div class="col fw-bold">
+                                    {{ $transaction[0]->order_id }}
                                 </div>
                             </div>
-                            <div class="col d-flex justify-content-end align-items-center">
-                                <a href="{{ route('download', ['order_id' => $transaction[0]->order_id]) }}" class="btn btn-success" target="_blank">Download</a>
+                            <div class="row">
+                                <div class="col text-secondary" style="font-size: 12px">
+                                    {{ $transaction[0]->created_at }}
+                                </div>
                             </div>
                         </div>
+                        <div class="col d-flex justify-content-end align-items-center">
+                            <a href="{{ route('download', ['order_id' => $transaction[0]->order_id]) }}" class="btn btn-success" target="_blank">Download</a>
+                        </div>
+                    </div>
                     @endforeach
                 </div>
             </div>
         </div>
+        @endif
     </div>
 </div>
 @endsection

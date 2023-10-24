@@ -14,7 +14,7 @@ class TransactionController extends Controller
 
         $user_id = $request->user_id;
         $product_id = $request->product_id;
-        $status = 'dikeranjang';
+        $status = 'di keranjang';
         $price = $request->price;
         $quantity = $request->quantity;
 
@@ -30,10 +30,10 @@ class TransactionController extends Controller
 
     public function payNow()
     {
-        $status = 'diambil';
+        $status = 'dibayar';
         $order_id = 'INV_' . Auth::user()->id . date('YmdHis');
 
-        $carts = Transaction::where('user_id', Auth::user()->id)->where('status', 'dikeranjang')->get();
+        $carts = Transaction::where('user_id', Auth::user()->id)->where('status', 'di keranjang')->get();
         $total_debit = 0;
         foreach ($carts as $cart) {
             $total_price = $cart->price * $cart->quantity;

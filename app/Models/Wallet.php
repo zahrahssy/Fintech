@@ -16,4 +16,8 @@ class Wallet extends Model
         'status',
         'description',
     ];
+
+    public function User(){
+        return $this->belongsTo(User::class);
+    }
 }
